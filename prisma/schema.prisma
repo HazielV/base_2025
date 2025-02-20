@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Persona {
+  id              Int       @id @default(autoincrement())
+  nombres         String
+  primerapellido  String
+  segundoapellido String?
+  fechanacimiento DateTime?
+  celular         String?
+  nrodocumento    Int       @unique
+  estadoId        Int?      @default(1)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  estado          Estado?   @relation(fields: [estadoId], references: [id])
+  usuario         Usuario?
+}
+
+model Usuario {
+  id                Int      @id @default(autoincrement())
+  correoElectronico String   @unique
+  password          String?
+  estadoId          Int?     @default(1)
+  personaId         Int      @unique
+  foto              String?
+  roles             Rol[]    @relation("usuarios_roles")
+  estado            Estado?  @relation(fields: [estadoId], references: [id])
+  persona           Persona  @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+model Rol {
+  id          Int       @id @default(autoincrement())
+  descripcion String
+  estado_id   Int       @default(1)
+  estado      Estado    @relation(fields: [estado_id], references: [id])
+  usuarios    Usuario[] @relation("usuarios_roles")
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+}
+
+model Menu {
+  id          Int    @id @default(autoincrement())
+  descripcion String
+  icono       String
+  url         String
+  path        String
+  menuPadreId Int? // Este campo será la clave foránea que referencia al menú padre
+  menuPadre   Menu?  @relation("SubMenuRelation", fields: [menuPadreId], references: [id])
+  submenus    Menu[] @relation("SubMenuRelation") // Relación inversa para los submenús
+  estado_id   Int    @default(1)
+  estado      Estado @relation(fields: [estado_id], references: [id])
+}
+
+model Estado {
+  id          Int       @id @default(autoincrement())
+  descripcion String
+  Rol         Rol[]
+  Persona     Persona[]
+  Usuario     Usuario[]
+  Menu        Menu[]
+}
