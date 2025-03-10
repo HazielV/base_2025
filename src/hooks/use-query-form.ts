@@ -1,7 +1,6 @@
 import { useToast } from './use-toast'
 import { useCallback, useState } from 'react'
 type FetchFunction = (data?: object) => Promise<object>
-
 interface UseQueryProps {
   funcion: FetchFunction
   onSuccess?: (data: object) => void
@@ -11,8 +10,9 @@ interface UseQueryProps {
     tituloBad: string
     mensaje: string
   }
-  defaultData?: unknown
+  defaultData?: object
 }
+
 export default function useQueryForm({
   funcion,
   onSuccess,
@@ -22,7 +22,7 @@ export default function useQueryForm({
 }: UseQueryProps) {
   const [isPending, setIsPending] = useState(false)
   const [isError, setIsError] = useState(false)
-  const [dataForm, setData] = useState(defaultData ? defaultData : null)
+  const [dataForm, setData] = useState(defaultData ?? {})
   const [error, setError] = useState<Error | null>(null)
   const [zodError, setZodError] = useState<Record<string, string[]> | null>(
     null
